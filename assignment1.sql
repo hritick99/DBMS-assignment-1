@@ -119,26 +119,29 @@ select name,rollno from students
 natural join 
 crs_regd
 where rollno=crs_rollno and deptcode='EE' and crs_cd='EE101' ;/*List students (rollno,name) in ELE dept registered for course EE101.*/
-select name,rollno from students
-natural join 
-crs_regd
-where rollno=crs_rollno and deptcode='EE' and crs_cd!='EE101';/*error*/
-
-select name,rollno from students
-natural join 
-crs_regd
-where  (rollno=crs_rollno and crs_cd='OS310') and (rollno=crs_rollno and crs_cd ='2102') ;/*error*/
-SELECT	name FROM students, crs_regd, crs_offrd WHERE crs_rollno = rollno	AND crs_cd = crs_code	AND crs_offrd.crs_name = 'DBMS'
-
-SELECT 	name FROM students, crs_regd, crs_offrd WHERE 	crs_rollno = rollno 	AND crs_cd = crs_code 	AND crs_offrd.crs_name = 'OS';
+select rollno, name 
+from students inner join crs_regd
+where rollno not in (select crs_rollno from crs_regd where crs_cd = 'EE101')
+and deptcode = 'EE'
+group by rollno;/* List students (rollno,name) in ELE dept not registered for course EE101.*/
+select rollno, name
+from students, crs_regd, crs_offrd
+where (rollno in (select crs_rollno from crs_regd inner join crs_offrd on crs_code = crs_cd 
+where crs_name = 'DBMS'))
+and
+(rollno in (select crs_rollno from crs_regd inner join crs_offrd on crs_code = crs_cd 
+where crs_name = 'OS'))
+group by rollno;/*List the names of the students who have registered for both the courses 'DBMS' and 'OS'.*/
 select fac_name ,fac_code,crs_name from faculty
 natural join 
  crs_offrd
 where (fac_code=crs_fac_cd and crs_name='MIS') or (fac_code=crs_fac_cd and crs_name='soft_engg') ;/* the names of the faculty members who have offered either 'MIS' or 'Software Engg.'*/
-select fac_name ,fac_code,crs_name from faculty
-natural join 
- crs_offrd
-where (fac_code=crs_fac_cd and crs_name='MIS') or not (fac_code=crs_fac_cd and crs_name!='soft_engg') ;
+select fac_code, fac_name, crs_name
+from faculty, crs_offrd
+where fac_code = crs_fac_cd
+and
+(crs_name = 'MIS' and
+crs_name != 'Soft_engg');/* Find the names of the faculty members who have offered 'MIS' but not offered 'Software Engg.'*/
 select name,rollno,hostel from students
 natural join 
 crs_regd
@@ -148,8 +151,15 @@ natural join
 crs_regd
 where (rollno=crs_rollno and crs_cd='CS101' or deptcode ='EE' ) /* the students who are in ELE dept or who have registered for course CS101.*/
 group by rollno;
-select rollno,name from students
-natural join
-crs_regd
-where (rollno=crs_rollno and mark<50
+select rollno, name
+from students, crs_regd
+where rollno = crs_rollno group by name having count(*) = (select count(*) from crs_offrd);/*Display the students who have registered to all the courses.*/
+
+update crs_regd, crs_offrd
+set
+marks = marks+5
+where marks < 50 and crs_name = 'DBMS' and crs_cd = crs_code;/* Give Grace Marks 5 in subject ‘DBMS’to the students who have scored less than 50 in that subject.*/
+
+
+
 

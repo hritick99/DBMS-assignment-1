@@ -37,7 +37,7 @@ select hostel,rollno,parent_inc
 from students
 where parent_inc=(select max(parent_inc) from students );/*to display the data for the student whose parent income is maximum in hostel*/
 
-delete from students where deptcode='CSE';
+delete from students where deptcode='CSE';/*Deletion of data whose deptcode was CSE*/
 delete from students where name='hritick';/*deletion of hritick data from the table students */
 
 create table faculty(fac_code char(8) primary key ,fac_name char(30) not null, fac_dept char(3) references depts(deptcode));
@@ -55,15 +55,12 @@ update crs_offrd
 set crs_code='PH106'
 where crs_code='5201';
 select *from crs_offrd;
-select * from crs_offrd
-where
+
 create table crs_regd(crs_rollno numeric(8) references students(rollno),crs_cd char(5) references crs_offrd(crs_code),marks numeric(5,2),primary key(crs_rollno,crs_cd));
 insert into crs_regd(crs_rollno,crs_cd,marks)
 value
 (92005010,'CS101',84);
-alter table crs_regd
-add constraint Fk_crs foreign key(crs_cd)
-references crs_offrd(crs_code);
+
 select *from crs_regd;
 select *from crs_offrd
 natural join
